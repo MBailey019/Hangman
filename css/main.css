@@ -308,6 +308,105 @@ position: absolute;
   justify-content: center;
 }
 
+.modal-mask {
+	position: fixed;
+	z-index: 9998;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(95, 108, 108, 0.16);
+	display: table;
+	transition: opacity .3s ease;
+}
+
+.modal-wrapper {
+  display: table-cell;
+  vertical-align: middle;
+}
+
+.modal-container {
+width: 45%;
+
+width: -webkit-min-content;
+
+width: -moz-min-content;
+
+width: min-content;
+
+margin: 0px auto;
+
+padding: 46px 46px 5px 46px;
+
+background-color: #f9f9f9;
+
+border-radius: 2px;
+
+box-shadow: 0 2px 2px rgba(0, 0, 0, .33);
+
+transition: all .3s ease;
+
+font-family: Helvetica, Arial, sans-serif;
+
+text-align: center;
+
+font-size: 0.5em;
+}
+
+.modal-header h3 {
+	margin-top: 0;
+	color: #757575;
+	font-weight: 100;
+	letter-spacing: 6pt;
+	text-shadow: 1px 2px 0px white;
+}
+
+.modal-body {
+  margin: 20px 0;
+}
+.modal-container ul {
+
+    margin: 40px auto;
+    padding: 0;
+
+}
+h4 {
+
+    font-weight: 100;
+    color: #b7b7b7;
+    margin: 11px 0;
+
+}
+button.difficulty {
+
+    width: 50%;
+    border-top: 1px #cfcfcf solid;
+    margin: 5px 0;
+    background: radial-gradient(white,#eaeaea);
+    color: #aeaeae;
+    font-size: 0.7em;
+    padding: 8px 0 7px;
+    border-bottom: 1px white solid;
+    border-right: 1px white solid;
+    border-left: 1px #cfcfcf solid;
+
+}
+#info {
+
+    min-width: 290px;
+    border-top: 1px #c6c6c6 solid;
+    padding: 3px 0 0 0;
+
+}
+.fineprint {
+
+    font-size: 0.45em;
+
+}
+.modal-default-button {
+  float: right;
+}
+
 /* ===========================================================================
 	Transitions
 	========================================================================== */
@@ -328,15 +427,27 @@ position: absolute;
 	transform: translateX(10px);
 }
 
+/*
+ * The following styles are auto-applied to elements with
+ * transition="modal" when their visibility is toggled
+ * by Vue.js.
+ *
+ * You can easily play with the modal transition by editing
+ * these styles.
+ */
+.modal-enter {
+  opacity: 0;
+}
 
+.modal-leave-active {
+  opacity: 0;
+}
 
-
-
-
-
-
-
-
+.modal-enter .modal-container,
+.modal-leave-active .modal-container {
+  -webkit-transform: scale(1.1);
+  transform: scale(1.1);
+}
 
 
 /* ==========================================================================

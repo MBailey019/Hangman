@@ -44,7 +44,7 @@ var words = [
 	'avalanche'
 ];
 var words = shuffle(words);
-var remainingGuesses = 6;
+var initGuesses = 6;
 var score = 0
 
 
@@ -173,9 +173,12 @@ Vue.component('indicator', {
 			this.guessed = false;
 		}
 	}
+}),
+
+Vue.component('modal', {
+  template: '#modal-template'
 })
 
-var initGuesses = 6;
 var vm = new Vue({
 	el: '#hangman',
 	data: {
@@ -188,7 +191,8 @@ var vm = new Vue({
 		begun: false,
 		guessed: 0,
 		won: false,
-		lost: false
+		lost: false,
+		showMenu: false
 	},
 	computed: {
 		toGuess: function() {
@@ -213,6 +217,7 @@ var vm = new Vue({
 		remaining: function(value) {
 			if (value == 0) {
 				this.lost = true;
+				this.showMenu = true;
 			}
 		}
 	},
