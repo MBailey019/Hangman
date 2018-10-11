@@ -1,11 +1,53 @@
+
+function shuffle(array) {
+  var currentIndex = array.length, temporaryValue, randomIndex;
+
+  // While there remain elements to shuffle...
+  while (0 !== currentIndex) {
+
+    // Pick a remaining element...
+    randomIndex = Math.floor(Math.random() * currentIndex);
+    currentIndex -= 1;
+
+    // And swap it with the current element.
+    temporaryValue = array[currentIndex];
+    array[currentIndex] = array[randomIndex];
+    array[randomIndex] = temporaryValue;
+  }
+
+  return array;
+}
+
 var keycodes = {}
 for (charCode = 97; charCode < 123; charCode++){
 	key = String.fromCharCode(charCode)
 	value = charCode - 32
 	keycodes[key] = value
 }
+var words = [
+	'tomorrow',
+	'signature',
+	'finale',
+	'dispute',
+	'helmet',
+	'tinker',
+	'nails',
+	'banana',
+	'penguin',
+	'spatula',
+	'plankton',
+	'airport',
+	'cathedral',
+	'sunflower',
+	'direction',
+	'relation',
+	'avalanche'
+];
+var words = shuffle(words);
 var remainingGuesses = 6;
 var score = 0
+
+
 
 Vue.component('word',{
 	props: {
@@ -25,6 +67,14 @@ Vue.component('word',{
 	}
 })
 
+Vue.component('letters-wrapper', {
+	template: `
+		<div id='letters-wrapper'>
+			<slot></slot>
+		</div>
+	`
+})
+
 Vue.component('letter', {
 	props: {
 		cont: ''
@@ -41,6 +91,11 @@ Vue.component('letter', {
 			<p v-if="open">{{cont}}</p>
 		</div>
 	`,
+	watch: {
+		cont: function() {
+			this.reset();
+		}
+	},
 	methods: {
 		toggle: function(e) {
 			if (e.keyCode == keycodes[this.cont] && !this.open) {
@@ -50,12 +105,8 @@ Vue.component('letter', {
 				vm.incrementGuessed();
 			}
 		},
-		reset: function(event) {
-			if (event.type == 'win') {
-				this.won = true;
-			} else {
-				this.lost = true;
-			}
+		reset: function() {
+			this.open = false;
 		}
 	},
 	mounted() {
@@ -69,10 +120,11 @@ Vue.component('indicator', {
 			class='indicator' 
 			:class='{guessed:guessed, pressgood:pressGood, pressbad:pressBad}'
 			@click='guess'>
-			<p>{{cont}}</p>
+			<p :id='cont'>{{cont}}</p>
 		</li>
 	`,
 	props: {
+		word: '',
 		cont: '',
 		keycode: ''
 	},
@@ -88,29 +140,34 @@ Vue.component('indicator', {
 			return vm.word.indexOf(this.cont) !== -1;
 		}
 	},
+	watch: {
+		word: function() {
+			this.reset();
+		}
+	},
 	methods: {
 		guess: function(){
-			console.log(this.inWord);
-			if (this.inWord) {
-				this.pressGood = true;
-				setTimeout(() => {
-					this.pressGood = false;
-					this.guessed = true;
-				},200);
-			} else {
-				this.pressBad = true;
-				setTimeout(() => {
-					this.pressBad = false;
-					this.guessed = true;
-				},200);
+			if (!this.guessed){
+				console.log(this.inWord);
+				if (this.inWord) {
+					this.pressGood = true;
+					setTimeout(() => {
+						this.pressGood = false;
+						this.guessed = true;
+					},500);
+				} else {
+					this.pressBad = true;
+					setTimeout(() => {
+						this.pressBad = false;
+						this.guessed = true;
+					},500);
+				}
+				// this.guessed = true;
+				vm.incrementGuesses(-1);
+				if (!vm.begun) {
+					vm.beginDiscount();
+				}
 			}
-			// this.guessed = true;
-			vm.incrementGuesses(-1);
-			if (!vm.begun) {
-				vm.beginDiscount();
-			}
-			// pressBad = false;
-			// pressGood = false;
 		},
 		reset: function() {
 			this.guessed = false;
@@ -125,6 +182,7 @@ var vm = new Vue({
 		score: 0,
 		remaining: initGuesses,
 		word: 'frances',
+		words: words,
 		keycodes: keycodes,
 		discountRate: 0.0, //points taken off per second
 		begun: false,
@@ -141,6 +199,15 @@ var vm = new Vue({
 		toGuess: function(value) {
 			if (value == 0) {
 				this.won = true;
+				var resetTimer;
+				if (this.discountRate > 0) {
+					resetTimer = 250;
+				} else{
+					resetTimer = 1500;
+				}
+				setTimeout(function() {
+					vm.resetWin()
+				}, resetTimer);
 			}
 		},
 		remaining: function(value) {
@@ -176,6 +243,15 @@ var vm = new Vue({
 		},
 		resetGuesses: function() {
 			this.remaining = initGuesses
+		},
+		getNextWord: function() {
+			return words.pop();
+		},
+		resetWin: function() {
+			this.word = this.getNextWord();
+			this.guessed = 0;
+			this.remaining = initGuesses;			
+			this.won = false;
 		}
 	}
 })

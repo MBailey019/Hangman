@@ -21,27 +21,31 @@
     <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
   <![endif]-->
 
-  <div id="hangman" :class='{won:won, lost:lost}'>
-	<div id="game-info">
-		<div id="score">
-			<p>{{discountRate > 0 ? score.toFixed(4) : score.toFixed(0)}}<span class='small'>pts.</span></p>
+	<div id="hangman" :class='{won:won, lost:lost}'>
+		<div id="game-info">
+			<div id="score">
+				<p>{{discountRate > 0 ? score.toFixed(4) : score.toFixed(0)}}<span class='small'>pts.</span></p>
+			</div>
+			<div id="guesses-left">
+				<p>{{remaining}}<span class='small'>tries</span></p>
+			</div>
 		</div>
-		<div id="guesses-left">
-			<p>{{remaining}}<span class='small'>tries</span></p>
+		<transition name='slide' mode='out-in'>
+			<word :cont="word" :key="word"></word>
+		</transition>
+		<div id="alphabet-indicator">
+			<ul id='alphabet'>
+				<indicator v-for='(value,key) in keycodes' 
+					:cont='key' 
+					:key='value-64' 
+					:keycode='value'
+					:ref='key'
+					:word='word'>
+				</indicator>
+			<ul>
 		</div>
+		<button @click="word == 'frances' ? word='tomorrow' : word='frances'">swap words</button>
 	</div>
-	<word :cont="word"></word>
-	<div id="alphabet-indicator">
-		<ul id='alphabet'>
-			<indicator v-for='(value,key) in keycodes' 
-				:cont='key' 
-				:key='value-64' 
-				:keycode='value'
-				:ref='key'>
-			</indicator>
-		<ul>
-	</div>
-  </div>
   
   <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
   <script src="js/vendor/modernizr-3.6.0.min.js"></script>

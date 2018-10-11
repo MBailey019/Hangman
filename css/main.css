@@ -106,7 +106,7 @@ html {
 	font: 32pt 'myriad pro'
 }
 p {
-	color: #424242;
+	color: #5d6a6c;
 	text-shadow: 1px 1px white;
 }
 
@@ -124,18 +124,88 @@ li {
     display: block;
     float: left;
     padding: 0 7pt;
+	position: relative;
+	transition: all ease-out 250ms;
+}
+/*
+.indicator p::before {
+    content: '';
+    display: block;
+    width: 0;
+    height: 0;
+    border-top: 13px red solid;
+    border-left: 11px transparent solid;
+    border-right: 11px transparent solid;
+    position: absolute;
+    left: 24%;
+    top: -19%;
+	opacity: 0;
+}
+*/
+.indicator p::after {
+    display: block;
+    position: absolute;
+    top: -56px;
+    padding: 0 30%;
+    margin: 0 -30%;
+    color: white;
+    text-shadow: none;
+    border-radius: 6px;
+    text-align: center;
+    left: 28%;
+	opacity: 0;
 }
 
 .indicator.guessed p {
 	opacity: 0.2;
 	transition: opacity ease-out 250ms;
 }
+
 .indicator.pressgood > p {
   color: #fff;
 }
+
+.indicator.pressgood > p::after {
+	content: '!';
+	background: limegreen;
+	opacity: 1;
+	color: #fff;
+	animation-duration: 500ms;
+	animation-fill-mode: forwards; 
+	animation-name: ghost;
+}
+
 .indicator.pressbad > p{
 	color: red;
 }
+
+.indicator.pressbad > p::after {
+	content: 'x';
+    background: #ff122b;
+	color: #fff;
+	opacity: 1;
+	animation-duration: 500ms;
+	animation-fill-mode: forward; 
+	animation-name: ghost;
+}
+
+@keyframes ghost {
+	from {
+		opacity: 0;
+		top: -56px;
+	}
+	20% {
+		opacity: 1;
+	}
+	70% {
+		opacity: 1;
+	}
+	to {
+		opacity: 0;
+		top: -76px;
+	}
+}
+
 #letters {
   padding: 20pt 0;
   display: flex;
@@ -173,6 +243,7 @@ li {
     margin: 20px;
 	color: #9b9e98;
 }
+/*
 #letters > li::before {
 box-shadow: 0px 3px 6px -2px #63a205;
 border: transparent 1px solid;
@@ -183,6 +254,7 @@ height: 90px;
 content: "";
 position: absolute;
 }
+*/
 .won #letters > li::before,
 .lost #letters > li::before {
 	opacity: 1;
@@ -222,12 +294,12 @@ position: absolute;
 
 #score {
   float: left;
-  margin: 0 24pt;
+  margin: 0 0 0 62pt;
 }
 
 #guesses-left {
   float: right;
-  margin: 0 24pt;
+  margin: 0 64pt 0 0;
 }
 
 #alphabet {
@@ -236,8 +308,25 @@ position: absolute;
   justify-content: center;
 }
 
-
-
+/* ===========================================================================
+	Transitions
+	========================================================================== */
+.slide-enter-active {
+	transition: all .25s ease-out;
+}
+.slide-leave-active {
+	transition: all .25s ease-out;
+}
+.slide-enter, .slide-leave-to
+/* .slide-fade-leave-active below version 2.1.8 */ {
+	opacity: 0;
+}
+.slide-enter {
+	transform: translateX(-100px);
+}
+.slide-leave-to {
+	transform: translateX(10px);
+}
 
 
 
