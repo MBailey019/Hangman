@@ -30,9 +30,16 @@
 				<p>{{remaining}}<span class='small'>tries</span></p>
 			</div>
 		</div>
-		<transition name='slide' mode='out-in'>
-			<word :cont="word" :key="word"></word>
-		</transition>
+		<div id="game-display">
+			<transition name='slide' mode='out-in'>
+				<word :cont="word" :key="word"></word>
+			</transition>
+			<div id="message-box">
+				<transition name="slide" mode="out-in">
+				<p v-if="gameStateMsg == 'pending'">game will pause at completion of current word.</p>
+				</transition>
+			</div>
+		</div>
 		<div id="alphabet-indicator">
 			<ul id='alphabet'>
 				<indicator v-for='(value,key) in keycodes' 
@@ -45,24 +52,40 @@
 			<ul>
 		</div>
 		  <modal v-if="showMenu" @close="showMenu = false">
-			<h3 slot="header">hangman</h3>
-			<ul slot="body">
-				<li>
-					<h4>start a new game?</h4>
-				</li>
-				<li>
-					<button class="difficulty" id="easy" @click="newGame(0)">easy</button>
-				</li>
-				<li>
-					<button class="difficulty" id="moderate" @click="newGame(1)">moderate</button>
-				</li>
-				<li>
-					<button class="difficulty" id="hard" @click="newGame(2)">hard</button>
-				</li>
-				<li>
-					<button class="difficulty" id="expert" @click="newGame(3)">expert</button>
-				</li>
-			</ul>
+			<div slot="header" id="main-menu-header">
+				<button
+					v-if="gameStateMsg == 'paused'"
+					class="game-option" 
+					id="continue" 
+					@click="unpause()">
+					X
+				</button>
+				<h3>hangman</h3>
+			</div>
+			<div slot="body" id="main-menu-body">
+				<div id="game-controls">
+					<p>press any character key to guess</p>
+					<p>spacebar to pause/unpause</p>
+					<p>keypad:right to skip</p>
+				</div>
+				<ul>
+					<li>
+						<h4>start a new game?</h4>
+					</li>
+					<li>
+						<button class="difficulty" id="easy" @click="newGame(0)">easy</button>
+					</li>
+					<li>
+						<button class="difficulty" id="moderate" @click="newGame(5)">moderate</button>
+					</li>
+					<li>
+						<button class="difficulty" id="hard" @click="newGame(10)">hard</button>
+					</li>
+					<li>
+						<button class="difficulty" id="expert" @click="newGame(20)">expert</button>
+					</li>
+				</ul>
+			</div>
 			<div id="info" slot="footer">
 				<p class="fineprint"> This little game was created as a way to gain experience using the Vue.js framework, and have some fun in the process. Created by Matt Bailey, 2018</p> 
 			</div>

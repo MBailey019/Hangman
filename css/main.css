@@ -285,6 +285,14 @@ position: absolute;
   float: left;
   width: 100%;
 }
+#message-box p {
+    margin: 0 auto;
+    width: 50%;
+    font-size: 0.4em;
+    font-weight: 100;
+    text-align: center;
+    color: #898989;
+}
 #hangman {
     display: flex;
     flex-direction: column;
@@ -326,47 +334,61 @@ position: absolute;
 }
 
 .modal-container {
-width: 45%;
-
-width: -webkit-min-content;
-
-width: -moz-min-content;
-
-width: min-content;
-
-margin: 0px auto;
-
-padding: 46px 46px 5px 46px;
-
-background-color: #f9f9f9;
-
-border-radius: 2px;
-
-box-shadow: 0 2px 2px rgba(0, 0, 0, .33);
-
-transition: all .3s ease;
-
-font-family: Helvetica, Arial, sans-serif;
-
-text-align: center;
-
-font-size: 0.5em;
+	width: 45%;
+	width: -webkit-min-content;
+	width: -moz-min-content;
+	width: min-content;
+	margin: 0px auto;
+	padding: 46px 46px 5px 46px;
+	background-color: #f9f9f9;
+	border-radius: 2px;
+	box-shadow: 0 2px 2px rgba(0, 0, 0, .33);
+	transition: all .3s ease;
+	font-family: Helvetica, Arial, sans-serif;
+	text-align: center;
+	font-size: 0.5em;
+	position: relative;
 }
 
 .modal-header h3 {
-	margin-top: 0;
-	color: #757575;
-	font-weight: 100;
-	letter-spacing: 6pt;
-	text-shadow: 1px 2px 0px white;
+    margin: 0 0 38px 0;
+    color: #757575;
+    font-weight: 100;
+    letter-spacing: 6pt;
+    text-shadow: 1px 1px 0px white;
 }
 
+button#continue {
+    position: absolute;
+    top: -12px;
+    right: -11px;
+    background: #f8f8f8;
+    padding: 11px 15px 7px;
+    font-weight: 100;
+    font-size: 1em;
+    color: #c2c2c2;
+    border: 1px solid #cecece;
+    box-shadow: 0px 2px 5px -1px;
+    transition: all 100ms linear;
+}
+
+button#continue:hover {
+    top: -14px;
+    color: grey;
+}
+
+.modal-header p,
+.modal-body p {
+    font-size: 0.7em;
+    margin: 0;
+    color: #8a8a8a;
+}
 .modal-body {
   margin: 20px 0;
 }
 .modal-container ul {
 
-    margin: 40px auto;
+    margin: 26px auto;
     padding: 0;
 
 }
@@ -378,19 +400,54 @@ h4 {
 
 }
 button.difficulty {
-
-    width: 50%;
-    border-top: 1px #cfcfcf solid;
-    margin: 5px 0;
-    background: radial-gradient(white,#eaeaea);
-    color: #aeaeae;
-    font-size: 0.7em;
-    padding: 8px 0 7px;
-    border-bottom: 1px white solid;
-    border-right: 1px white solid;
-    border-left: 1px #cfcfcf solid;
-
+	width: 50%;
+	border-top: 1px #cfcfcf solid;
+	margin: 5px 0;
+	background: radial-gradient(white,#eaeaea);
+	color: #aeaeae;
+	font-size: 0.7em;
+	padding: 8px 0 7px;
+	border-bottom: 1px white solid;
+	border-right: 1px white solid;
+	border-left: 1px #cfcfcf solid;
+	box-shadow: inset 2px 2px 4px -1px #cccece;
 }
+button.difficulty:hover {
+    border: 1px transparent solid;
+    background: radial-gradient(#fff,#efefef);
+    box-shadow: 0px 2px 4px -2px #3b3b3b;
+    color: white;
+}
+#easy:hover {
+  background: radial-gradient(#64fb64,#a9fca9);
+}
+#moderate:hover {
+  background: radial-gradient(#f0d14d,#e6b643);
+}
+#hard:hover {
+  background: radial-gradient(#fb8585,#fc5757);
+}
+#expert:hover {
+  background: radial-gradient(#b45ab4,#6d2472);
+}
+
+#game-controls {
+  border: 1px solid #d2d2d2;
+  padding: 13px 0;
+  position: relative;
+}
+#game-controls::after {
+  content: 'CONTROLS';
+  position: absolute;
+  display: block;
+  background: #f8f8f8;
+  top: -7px;
+  font-size: 0.5em;
+  padding: 0px 5px;
+  left: 6px;
+  color: #bdbdbd;
+}
+
 #info {
 
     min-width: 290px;

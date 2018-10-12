@@ -18,6 +18,21 @@ function shuffle(array) {
   return array;
 }
 
+function debounce(func, wait, immediate) {
+	var timeout;
+	return function() {
+		var context = this, args = arguments;
+		var later = function() {
+			timeout = null;
+			if (!immediate) func.apply(context, args);
+		};
+		var callNow = immediate && !timeout;
+		clearTimeout(timeout);
+		timeout = setTimeout(later, wait);
+		if (callNow) func.apply(context, args);
+	};
+}
+
 var keycodes = {}
 for (charCode = 97; charCode < 123; charCode++){
 	key = String.fromCharCode(charCode)
@@ -98,7 +113,7 @@ Vue.component('letter', {
 	},
 	methods: {
 		toggle: function(e) {
-			if (e.keyCode == keycodes[this.cont] && !this.open) {
+			if (e.key == this.cont && !this.open && vm.gameStateMsg !== 'paused') {
 				this.open = true;
 				vm.incrementGuesses(1);
 				vm.incrementScore(1);
@@ -111,6 +126,9 @@ Vue.component('letter', {
 	},
 	mounted() {
 		window.addEventListener('keydown', this.toggle);
+	},
+	beforeDestroy() {
+		window.removeEventListener('keydown', this.toggle);
 	}
 })
 
@@ -147,8 +165,7 @@ Vue.component('indicator', {
 	},
 	methods: {
 		guess: function(){
-			if (!this.guessed){
-				console.log(this.inWord);
+			if (!this.guessed && vm.gameStateMsg !== 'paused'){
 				if (this.inWord) {
 					this.pressGood = true;
 					setTimeout(() => {
@@ -184,15 +201,18 @@ var vm = new Vue({
 	data: {
 		score: 0,
 		remaining: initGuesses,
-		word: 'frances',
+		word: '',
 		words: words,
 		keycodes: keycodes,
 		discountRate: 0.0, //points taken off per second
+		discountTimer: '',
 		begun: false,
 		guessed: 0,
 		won: false,
 		lost: false,
-		showMenu: false
+		showMenu: true,
+		difficulty: 0,
+		gameStateMsg: 'welcome'
 	},
 	computed: {
 		toGuess: function() {
@@ -202,22 +222,44 @@ var vm = new Vue({
 	watch: {
 		toGuess: function(value) {
 			if (value == 0) {
+				if (vm.gameStateMsg == 'pending') {
+					vm.pause()
+				}
 				this.won = true;
+				this.score = this.score + this.difficulty;
 				var resetTimer;
 				if (this.discountRate > 0) {
-					resetTimer = 250;
+					resetTimer = 200;
 				} else{
 					resetTimer = 1500;
 				}
 				setTimeout(function() {
-					vm.resetWin()
+					vm.reset();
+					vm.won = false;
 				}, resetTimer);
 			}
 		},
-		remaining: function(value) {
-			if (value == 0) {
+		score: function(value) {
+			if (0 > value) {
+				clearInterval(this.discountTimer);
+				this.discountTimer = '';
+				this.begun = false;
+				this.score = 0;
 				this.lost = true;
 				this.showMenu = true;
+			}
+		},
+		remaining: function(value) {
+			if (0 >= value) {
+				this.lost = true;
+				this.score = this.score - (10 + this.difficulty/2.0);
+				this.gameStateMsg = 'game over';
+				if (this.score >= 0) {
+					setTimeout(function() {
+						vm.reset();
+						vm.lost = false;
+					},250);
+				}
 			}
 		}
 	},
@@ -226,8 +268,7 @@ var vm = new Vue({
 			this.score = this.score + amt;
 		},
 		discountScore: function() {
-			setInterval(function(that) {
-				// console.log('whoops');
+			this.discountTimer = setInterval(function(that) {
 				vm.score = vm.score - (vm.discountRate/100.0);
 			}, 10);
 		},
@@ -252,18 +293,58 @@ var vm = new Vue({
 		getNextWord: function() {
 			return words.pop();
 		},
-		resetWin: function() {
+		reset: function() {
 			this.word = this.getNextWord();
 			this.guessed = 0;
 			this.remaining = initGuesses;			
-			this.won = false;
+			
+		},
+		newGame: function(difficulty) {
+			this.words = shuffle(words).push('frances');
+			this.word = words.pop();
+			this.guessed = 0;
+			this.score = difficulty;
+			this.remaining = initGuesses;
+			this.discountRate = difficulty/25.0;
+			this.lost = false;
+			this.showMenu = false;
+		},
+		pause: function() {
+			clearInterval(this.discountTimer);
+			this.discountTimer = '';
+			this.begun = false;
+			this.gameStateMsg = 'paused';
+			this.showMenu = true;
+		},
+		unpause: function() {
+			this.showMenu = false;
+			this.beginDiscount();
+			this.gameStateMsg = 'playing';
 		}
 	}
 })
 
 window.addEventListener('keydown', function(e){
-	var kC = String.fromCharCode(e.keyCode + 32);
-	vm.$refs[kC][0].$el.click();
+	var key = e.key;
+	if (/[a-z]/.test(key)) {
+		console.log(key)
+		vm.$refs[key][0].$el.click();
+	}
+	if (key == ' '){
+		if (vm.gameStateMsg !== 'paused') {
+			if (vm.discountRate > 0) {
+				if (vm.gameStateMsg !== 'pending') {
+					vm.gameStateMsg = 'pending';
+				} else {
+					vm.gameStateMsg = 'playing';
+				}
+			} else {
+				vm.pause()
+			}
+		} else {
+			vm.unpause()
+		}
+	}
 
 });
 
