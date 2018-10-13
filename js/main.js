@@ -300,7 +300,7 @@ var vm = new Vue({
 			
 		},
 		newGame: function(difficulty) {
-			this.words = shuffle(words).push('frances');
+			this.words = shuffle(words);//.push('frances');
 			this.word = words.pop();
 			this.guessed = 0;
 			this.score = difficulty;
@@ -308,6 +308,7 @@ var vm = new Vue({
 			this.discountRate = difficulty/25.0;
 			this.lost = false;
 			this.showMenu = false;
+			this.gameStateMsg = 'playing';
 		},
 		pause: function() {
 			clearInterval(this.discountTimer);
