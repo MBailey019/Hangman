@@ -1,4 +1,4 @@
-
+this
 function shuffle(array) {
   var currentIndex = array.length, temporaryValue, randomIndex;
 
@@ -63,25 +63,32 @@ var initGuesses = 6;
 var score = 0
 
 
-
+/*==============================================================================
+  WORD
+  ============================================================================*/
 Vue.component('word',{
 	props: {
-		cont: ''
+		cont: '',
+    lastCorrect:''
 	},
 	template:`
 		<div id='word'>
 			<ul id="letters">
 				<li v-for='letter in cont'>
-					<letter :cont='letter'></letter>
+					<letter
+            :cont='letter'
+            :last-guess='lastCorrect'></letter>
 				</li>
 			</ul>
 		</div>
 	`,
 	computed:{
-	
+
 	}
 })
-
+/*==============================================================================
+  LETTER WRAPPER
+  ============================================================================*/
 Vue.component('letters-wrapper', {
 	template: `
 		<div id='letters-wrapper'>
@@ -89,10 +96,13 @@ Vue.component('letters-wrapper', {
 		</div>
 	`
 })
-
+/*==============================================================================
+  LETTER
+  ============================================================================*/
 Vue.component('letter', {
 	props: {
-		cont: ''
+		cont: '',
+    lastGuess: '',
 	},
 	data: function () {
 		return {
@@ -109,13 +119,17 @@ Vue.component('letter', {
 	watch: {
 		cont: function() {
 			this.reset();
-		}
+		},
+    lastGuess: function(val) {
+      if (this.cont == val) {
+        this.reveal();
+      }
+    }
 	},
 	methods: {
-		toggle: function(e) {
-			if (e.key == this.cont && !this.open && vm.gameStateMsg !== 'paused') {
+		reveal: function() {
+			if (vm.gameStateMsg !== 'paused') {
 				this.open = true;
-				vm.incrementGuesses(1);
 				vm.incrementScore(1);
 				vm.incrementGuessed();
 			}
@@ -132,19 +146,23 @@ Vue.component('letter', {
 	}
 })
 
+/*==============================================================================
+  INDICATOR
+  ============================================================================*/
 Vue.component('indicator', {
 	template: `
-		<li 
-			class='indicator' 
+		<li
+			class='indicator'
 			:class='{guessed:guessed, pressgood:pressGood, pressbad:pressBad}'
-			@click='guess'>
+			@click='lastGuess=cont'>
 			<p :id='cont'>{{cont}}</p>
 		</li>
 	`,
 	props: {
 		word: '',
 		cont: '',
-		keycode: ''
+		keycode: '',
+    lastGuess: ''
 	},
 	data: function() {
 		return {
@@ -155,32 +173,37 @@ Vue.component('indicator', {
 	},
 	computed: {
 		inWord: function() {
-			return vm.word.indexOf(this.cont) !== -1;
+			return this.word.indexOf(this.cont) !== -1;
 		}
 	},
 	watch: {
 		word: function() {
 			this.reset();
-		}
+		},
+    lastGuess: function(val) {
+      if (val == this.cont && !this.guessed) {
+        this.guess(val);
+      }
+    }
 	},
 	methods: {
-		guess: function(){
-			if (!this.guessed && vm.gameStateMsg !== 'paused'){
+		guess: function(letter){
+			if (vm.gameStateMsg !== 'paused'){
 				if (this.inWord) {
 					this.pressGood = true;
 					setTimeout(() => {
 						this.pressGood = false;
 						this.guessed = true;
+            this.$emit('correct-guess',letter);//,guessed);
 					},500);
 				} else {
+          vm.incrementGuesses(-1);
 					this.pressBad = true;
 					setTimeout(() => {
 						this.pressBad = false;
 						this.guessed = true;
 					},500);
 				}
-				// this.guessed = true;
-				vm.incrementGuesses(-1);
 				if (!vm.begun) {
 					vm.beginDiscount();
 				}
@@ -191,11 +214,15 @@ Vue.component('indicator', {
 		}
 	}
 }),
-
+/*==============================================================================
+  MODAL
+  ============================================================================*/
 Vue.component('modal', {
   template: '#modal-template'
 })
-
+/*==============================================================================
+  INSTANCE
+  ============================================================================*/
 var vm = new Vue({
 	el: '#hangman',
 	data: {
@@ -208,6 +235,8 @@ var vm = new Vue({
 		discountTimer: '',
 		begun: false,
 		guessed: 0,
+    lastGuess: '',
+    lastCorrect: '',
 		won: false,
 		lost: false,
 		showMenu: true,
@@ -278,33 +307,33 @@ var vm = new Vue({
 				this.discountScore();
 			}
 		},
-		setDiscountRate: function(rate) {
+/*		setDiscountRate: function(rate) {
 			this.discountRate = rate;
 		},
+		resetGuesses: function() {
+    this.remaining = initGuesses
+  },
+  getNextWord: function() {
+  return words.pop();
+},*/
 		incrementGuessed: function() {
 			this.guessed = this.guessed + 1
 		},
 		incrementGuesses: function(amt) {
 			this.remaining = this.remaining + amt
 		},
-		resetGuesses: function() {
-			this.remaining = initGuesses
-		},
-		getNextWord: function() {
-			return words.pop();
-		},
 		reset: function() {
-			this.word = this.getNextWord();
+			this.word = words.pop();
+      this.lastGuess = '';
+      this.lastCorrect = '';
 			this.guessed = 0;
-			this.remaining = initGuesses;			
-			
+			this.remaining = initGuesses;
+
 		},
 		newGame: function(difficulty) {
 			this.words = shuffle(words);//.push('frances');
-			this.word = words.pop();
-			this.guessed = 0;
+      this.reset();
 			this.score = difficulty;
-			this.remaining = initGuesses;
 			this.discountRate = difficulty/25.0;
 			this.lost = false;
 			this.showMenu = false;
@@ -321,31 +350,33 @@ var vm = new Vue({
 			this.showMenu = false;
 			this.beginDiscount();
 			this.gameStateMsg = 'playing';
-		}
-	}
+		},
+    buttonPress: function(e) {
+      var key = e.key;
+      if (/[a-z]/.test(key)) {
+        this.lastGuess = key;
+      }
+      if (key == ' '){
+        if (this.gameStateMsg !== 'paused') {
+          if (this.discountRate > 0) {
+            if (this.gameStateMsg !== 'pending') {
+              this.gameStateMsg = 'pending';
+            } else {
+              this.gameStateMsg = 'playing';
+            }
+          } else {
+            this.pause()
+          }
+        } else {
+          this.unpause()
+        }
+      }
+    },
+    correctGuess: function(letter) {
+      this.lastCorrect = letter;
+    }
+	},
+  mounted() {
+    window.addEventListener('keydown', this.buttonPress);
+  }
 })
-
-window.addEventListener('keydown', function(e){
-	var key = e.key;
-	if (/[a-z]/.test(key)) {
-		console.log(key)
-		vm.$refs[key][0].$el.click();
-	}
-	if (key == ' '){
-		if (vm.gameStateMsg !== 'paused') {
-			if (vm.discountRate > 0) {
-				if (vm.gameStateMsg !== 'pending') {
-					vm.gameStateMsg = 'pending';
-				} else {
-					vm.gameStateMsg = 'playing';
-				}
-			} else {
-				vm.pause()
-			}
-		} else {
-			vm.unpause()
-		}
-	}
-
-});
-
