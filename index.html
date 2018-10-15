@@ -21,7 +21,9 @@
     <p class="browserupgrade">You are using an <strong>outdated</strong> browser. Please <a href="https://browsehappy.com/">upgrade your browser</a> to improve your experience and security.</p>
   <![endif]-->
 
-	<div id="hangman" :class='{won:won, lost:lost}'>
+	<div id="hangman"
+    :class='{won:won, lost:lost}'
+    >
 		<div id="game-info">
 			<div id="score">
 				<p>{{discountRate > 0 ? score.toFixed(4) : score.toFixed(0)}}<span class='small'>pts.</span></p>
@@ -32,7 +34,12 @@
 		</div>
 		<div id="game-display">
 			<transition name='slide' mode='out-in'>
-				<word :cont="word" :key="word"></word>
+				<word
+          :cont="word"
+          :key="word"
+          :last-correct="lastCorrect"
+          >
+        </word>
 			</transition>
 			<div id="message-box">
 				<transition name="slide" mode="out-in">
@@ -42,12 +49,15 @@
 		</div>
 		<div id="alphabet-indicator">
 			<ul id='alphabet'>
-				<indicator v-for='(value,key) in keycodes' 
-					:cont='key' 
-					:key='value-64' 
+				<indicator v-for='(value,key) in keycodes'
+					:cont='key'
+					:key='value-64'
 					:keycode='value'
 					:ref='key'
-					:word='word'>
+					:word='word'
+          :last-guess='lastGuess'
+          @correct-guess='correctGuess'
+          @click='lastGuess=this.cont'>
 				</indicator>
 			<ul>
 		</div>
@@ -55,8 +65,8 @@
 			<div slot="header" id="main-menu-header">
 				<button
 					v-if="gameStateMsg == 'paused'"
-					class="game-option" 
-					id="continue" 
+					class="game-option"
+					id="continue"
 					@click="unpause()">
 					X
 				</button>
@@ -87,11 +97,11 @@
 				</ul>
 			</div>
 			<div id="info" slot="footer">
-				<p class="fineprint"> This little game was created as a way to gain experience using the Vue.js framework, and have some fun in the process. Created by Matt Bailey, 2018</p> 
+				<p class="fineprint"> This little game was created as a way to gain experience using the Vue.js framework, and have some fun in the process. Created by Matt Bailey, 2018</p>
 			</div>
 		  </modal>
 	</div>
-	
+
   <!-- template for the modal component -->
 	<script type="text/x-template" id="modal-template">
 	  <transition name="modal">
